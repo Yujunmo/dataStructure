@@ -6,13 +6,13 @@ class RBtree : public BinaryTree<T> {
 private:
 	BinaryNode<T>* nil = nullptr;
 
-	BinaryNode<T>* left_rotate(BinaryNode<T>* x) {
+	BinaryNode<T>*& left_rotate(BinaryNode<T>* x) {
 		BinaryNode<T>* y = x->right;
 		
 		x->right = y->left;
 		y->left->parent = x;
 		y->parent = x->parent;
-		if (isRoot(x->parent)) {
+		if (isRoot(x)) {
 			this->root = y;
 		}
 		else {
@@ -28,13 +28,13 @@ private:
 		return y;
 	}
 
-	BinaryNode<T>* right_rotate(BinaryNode<T>* y) {
+	BinaryNode<T>*& right_rotate(BinaryNode<T>* y) {
 		BinaryNode<T>* x = y->left;
 
 		y->left = x->right;
 		x->right->parent = y;
 		x->parent = y->parent;
-		if (isRoot(y->parent)) {
+		if (isRoot(y)) {
 			this->root = x;
 		}
 		else {
@@ -65,6 +65,7 @@ private:
 			//parent is left child
 			if (node->parent == node->parent->parent->left) {
 				uncle = node->parent->parent->right;
+				//uncle is red
 				if (uncle->color == red) {
 					if (node->parent->parent->parent == nil) {
 						node->parent->color = black;
@@ -127,7 +128,7 @@ private:
 	}
 
 	bool isRoot(BinaryNode<T>* node) {
-		return node->parent->isLeaf();
+		return node->parent==nil;
 	}
 
 	void printSub(BinaryNode<T>* node) {
@@ -136,11 +137,40 @@ private:
 		}
 		else {
 			printSub(node->getLeft());
-			cout << node->getKey() << " ";
+			cout << node->getKey() << ":"<<node->color<<"    ";
 			printSub(node->getRight());
 		}
 	}
 
+	BinaryNode<T>* insertSub(BinaryNode<T>*& p, BinaryNode<T>*& n, T key) {
+		if (n == nil) {
+			n = new BinaryNode<T>(key, red, nil, nil, p);
+			return n;
+		}
+		else {
+			if (n->getKey() == key) {
+				cout << "can't insert the same key" << endl;
+			}
+			else if (n->getKey() > key) {
+				return insertSub(n, n->left, key);
+			}
+			else {
+				return insertSub(n, n->right, key);
+			}
+		}
+
+	}
+
+	void erase(BinaryNode<T>* node) {
+		if (node == nil) {
+			return;
+		}
+		else {
+			erase(node->left);
+			erase(node->right);
+			delete node;
+		}
+	}
 
 public:
 	RBtree<T>() {
@@ -149,7 +179,6 @@ public:
 	}
 	void print() {printSub(this->root);}
 	
-
 	void search(T key) {
 		if (this->isEmpty()) {
 			cout << "empty" << endl;
@@ -172,9 +201,9 @@ public:
 		}
 	}
 
-	void insert(T key) {
+	/*void insert(T key) {
 		BinaryNode<T>* p = nil;
-		BinaryNode<T>*& node = this->root;
+		BinaryNode<T>* node = this->root;
 		while (node != nil) {
 			if (node->getKey() == key) {
 				cout << "key exists" << endl;
@@ -190,21 +219,15 @@ public:
 			}
 		}
 		node = new BinaryNode<T>(key,red,nil, nil, p);
-		if (p == nil) {
+		if (this->root == nil) {
 			this->root = node;
 		}
 		RB_fixup(node);
-	}
+	}*/
 
-	void erase(BinaryNode<T>* node) {
-		if (node == nil) {
-			return;
-		}
-		else {
-			erase(node->left);
-			erase(node->right);
-			delete node;
-		}
+	void insert(T key) {
+		BinaryNode<T>* x = insertSub(nil, this->root, key);
+		RB_fixup(x);
 	}
 
 	~RBtree() {
