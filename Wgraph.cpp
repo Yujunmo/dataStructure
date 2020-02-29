@@ -226,12 +226,12 @@ public:
 	}
 };
 
-int main() {
-	Wgraph g;
-	g.load("graph.txt");
-	g.display();
-	cout << endl;
-	cout << "DFS : "; g.DFS('A');
-	cout << endl;
-	cout << "BFS : "; g.BFS('A');
-}
+//int main() {
+//	Wgraph g;
+//	g.load("graph.txt");
+//	g.display();
+//	cout << endl;
+//	cout << "DFS : "; g.DFS('A');
+//	cout << endl;
+//	cout << "BFS : "; g.BFS('A');
+//}
