@@ -2,9 +2,71 @@
 #include<iostream>
 #include<stack>
 #include<queue>
+#include<functional>
 #define INF 9999
 #define MAX 20
 using namespace std;
+
+
+class VertexSets {
+private:
+	int* parent;
+	int nSets;
+public:
+	VertexSets(int size) :nSets(size) {
+		parent = new int[size];
+		for (int i = 0; i < size; ++i) {
+			parent[i] = i;
+		}
+	}
+	~VertexSets() {
+		delete[] parent;
+	}
+
+	int findSet(int vertexIndex) {
+		while (parent[vertexIndex] != vertexIndex) { vertexIndex = parent[vertexIndex]; }
+		return vertexIndex;
+	}
+
+	void unionSet2(int Smallv1, int Bigv2) {
+		parent[Bigv2] = Smallv1;
+		nSets--;
+	}
+
+	void unionSet(int v1, int v2) {
+		int p1 = findSet(v1);
+		int p2 = findSet(v2);
+
+		if (p1 == p2) return;
+		else if (p1 > p2) {
+			parent[p1] = p2;
+		}
+		else {
+			parent[p2] = p1;
+		}
+		nSets--;
+	}
+};
+
+
+class Edge {
+	int weight;
+	int start;
+	int end;
+public:
+	Edge(int s, int e, int w) :start(s), end(e), weight(w) {}
+	int getStart() { return start; }
+	int getEnd() { return end; }
+	int getWeight() { return weight; }
+};
+
+class cmp {
+public:
+	bool operator()(Edge a, Edge b) {
+		return  a.getWeight() > b.getWeight();
+	}
+};
+
 
 
 class Wgraph {
@@ -63,6 +125,13 @@ public:
 			edge = matrix[index1][index2];
 		}
 	}
+
+	Edge GETEDGE(int v1, int v2) {
+		int weight = matrix[v1][v2];
+		Edge edge(v1, v2, weight);
+		return edge;
+	}
+
 	
 	void insertVertex(char v) {
 		if (isFull()) {
@@ -222,16 +291,60 @@ public:
 				}
 			}
 		}
-	
+	}
+
+	void Kruskal() {
+		priority_queue<Edge, vector<Edge>, cmp > minheap;
+
+		for (int i = 0; i < size - 1; ++i) {
+			for (int j = i + 1; j < size; ++j) {
+				if (matrix[i][j] != INF) {
+					minheap.push(GETEDGE(i, j));
+				}
+			}
+		}
+
+		VertexSets set(size);
+		int numberSelected = 0;
+		while (numberSelected < size - 1) {
+			Edge e = minheap.top();
+			minheap.pop();
+			int p1 = set.findSet(e.getStart());
+			int p2 = set.findSet(e.getEnd());
+
+			if (p1 == p2) {
+				continue;
+			}
+			else {
+				if (p1 > p2) {
+					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << endl;
+					set.unionSet2(p2, p1);
+					numberSelected++;
+				}
+				else {
+					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << endl;
+					set.unionSet2(p1, p2);
+					numberSelected++;
+				}
+			}
+		}
 	}
 };
 
-//int main() {
-//	Wgraph g;
-//	g.load("graph.txt");
-//	g.display();
-//	cout << endl;
-//	cout << "DFS : "; g.DFS('A');
-//	cout << endl;
-//	cout << "BFS : "; g.BFS('A');
-//}
+
+
+int main() {
+	Wgraph graph;
+	graph.load("graph.txt");
+	graph.display();
+	puts("");
+
+	cout << "DFS : "; graph.DFS('A'); puts("");
+	cout << "BFS : "; graph.BFS('A'); puts("");
+	puts("");
+
+	cout << "Kruskal " << endl;
+	graph.Kruskal();
+
+	return 0;
+}
