@@ -7,7 +7,7 @@
 #define MAX 20
 using namespace std;
 
-
+//find union 클래스
 class VertexSets {
 private:
 	int* parent;
@@ -23,32 +23,21 @@ public:
 		delete[] parent;
 	}
 
+	// 소속 집합의 루트를 찾아줌
 	int findSet(int vertexIndex) {
 		while (parent[vertexIndex] != vertexIndex) { vertexIndex = parent[vertexIndex]; }
 		return vertexIndex;
 	}
 
-	void unionSet2(int Smallv1, int Bigv2) {
+	// 하나의 집합으로 통합. 작은 루트로 통합함.
+	void unionSet(int Smallv1, int Bigv2) {
 		parent[Bigv2] = Smallv1;
 		nSets--;
 	}
 
-	void unionSet(int v1, int v2) {
-		int p1 = findSet(v1);
-		int p2 = findSet(v2);
-
-		if (p1 == p2) return;
-		else if (p1 > p2) {
-			parent[p1] = p2;
-		}
-		else {
-			parent[p2] = p1;
-		}
-		nSets--;
-	}
 };
 
-
+// 최소 힙에 푸시하기 위해 새로운 객체를 구현함.
 class Edge {
 	int weight;
 	int start;
@@ -126,6 +115,7 @@ public:
 		}
 	}
 
+	// kruskal에 쓰일 함수. 시작 정점, 끝 정점, 가중치를 필드로 갖는 객체를 반환.
 	Edge GETEDGE(int v1, int v2) {
 		int weight = matrix[v1][v2];
 		Edge edge(v1, v2, weight);
@@ -294,12 +284,14 @@ public:
 	}
 
 	void Kruskal() {
+		//최소 힙
 		priority_queue<Edge, vector<Edge>, cmp > minheap;
 
+		
 		for (int i = 0; i < size - 1; ++i) {
 			for (int j = i + 1; j < size; ++j) {
-				if (matrix[i][j] != INF) {
-					minheap.push(GETEDGE(i, j));
+				if (matrix[i][j] != INF) {  //두 정점간 간선이 존재하면
+					minheap.push(GETEDGE(i, j)); //힙에 넣는다. 객체에 담아서 넣는다.
 				}
 			}
 		}
@@ -309,8 +301,8 @@ public:
 		while (numberSelected < size - 1) {
 			Edge e = minheap.top();
 			minheap.pop();
-			int p1 = set.findSet(e.getStart());
-			int p2 = set.findSet(e.getEnd());
+			int p1 = set.findSet(e.getStart()); //시작 정점의 루트
+			int p2 = set.findSet(e.getEnd());   //끝 정점의 루트
 
 			if (p1 == p2) {
 				continue;
@@ -318,12 +310,12 @@ public:
 			else {
 				if (p1 > p2) {
 					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << endl;
-					set.unionSet2(p2, p1);
+					set.unionSet(p2, p1);
 					numberSelected++;
 				}
 				else {
 					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << endl;
-					set.unionSet2(p1, p2);
+					set.unionSet(p1, p2);
 					numberSelected++;
 				}
 			}
