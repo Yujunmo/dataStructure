@@ -1,9 +1,11 @@
 7
 A B C D E F G 
-A B 1
-A C 1
-B F 1
-C F 1
-C D 1
-C E 1
-E G 1
+A B 29
+A F 10
+B C 16
+B G 15
+C D 12
+D E 22
+D G 18
+E F 27
+E G 25

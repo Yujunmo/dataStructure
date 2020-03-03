@@ -64,6 +64,7 @@ protected:
 	int matrix[MAX][MAX];
 	int size;
 	bool visited[MAX];
+	int distance[MAX];
 public:
 	Wgraph() { reset(); }
 	void reset() {
@@ -304,23 +305,79 @@ public:
 			int p1 = set.findSet(e.getStart()); //시작 정점의 루트
 			int p2 = set.findSet(e.getEnd());   //끝 정점의 루트
 
+			//두 정점의 루트가 같으면 이미 같은 집합임. 이 두 정점을 이으면 싸이클이 생기므로 간선을 추가하지 않음.
 			if (p1 == p2) {
 				continue;
 			}
+			// 두 정점의 루트가 다르다. 서로 다른 집합이다.
 			else {
+				//루트가 작은걸로 통합함.
 				if (p1 > p2) {
-					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << endl;
+					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << " : " << matrix[e.getStart()][e.getEnd()] << endl;
 					set.unionSet(p2, p1);
 					numberSelected++;
 				}
 				else {
-					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << endl;
+					cout << vertices[e.getStart()] << " " << vertices[e.getEnd()] << " : " << matrix[e.getStart()][e.getEnd()] << endl;
 					set.unionSet(p1, p2);
 					numberSelected++;
 				}
 			}
 		}
 	}
+
+	void Prim(char v) {
+		//초기화
+		visitedReset();
+		for (int i = 0; i < size; ++i) {
+			distance[i] = INF;
+		}
+
+		int count = 0;
+		int Firstindex = getVertexNumber(v);
+		distance[Firstindex] = 0;
+
+		//정점 개수만큼
+		while (count != size) {
+			int closestIndex = getClosestVertexIndex();
+			visited[closestIndex] = true;
+
+			if (distance[closestIndex] == INF) {
+				cout << "unavilable to make a spanning tree" << endl;
+				return;
+			}
+
+			cout << vertices[closestIndex] << " ";
+
+			//새로 추가된 정점에 대해 distance 갱신
+			for (int i = 0; i < size; ++i) {
+				if (visited[i] == false && matrix[closestIndex][i] != INF) {
+					if (matrix[closestIndex][i] < distance[i]) {
+						distance[i] = matrix[closestIndex][i];
+					}
+				}
+			}
+
+			count++;
+		}
+		puts("");
+	}
+
+	int getClosestVertexIndex() {
+		int min = INF;
+		int index;
+		for (int i = 0; i < size; ++i) {
+			if (visited[i] == false) {
+				if (distance[i] < min) {
+					min = distance[i];
+					index = i;
+				}
+			}
+		}
+		return index;
+	}
+
+
 };
 
 
@@ -338,5 +395,7 @@ int main() {
 	cout << "Kruskal " << endl;
 	graph.Kruskal();
 
+	cout << "Prim" << endl;
+	graph.Prim('A');
 	return 0;
 }
