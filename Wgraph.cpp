@@ -56,7 +56,16 @@ public:
 	}
 };
 
+class primVertex {
+public:
+	int from;
+	int weight;
 
+	primVertex() {
+		from = 0;
+		weight = INF;
+	}
+};
 
 class Wgraph {
 protected:
@@ -64,7 +73,7 @@ protected:
 	int matrix[MAX][MAX];
 	int size;
 	bool visited[MAX];
-	int distance[MAX];
+	primVertex distance[MAX];
 public:
 	Wgraph() { reset(); }
 	void reset() {
@@ -330,30 +339,33 @@ public:
 		//초기화
 		visitedReset();
 		for (int i = 0; i < size; ++i) {
-			distance[i] = INF;
+			distance[i].weight = INF;
 		}
 
 		int count = 0;
 		int Firstindex = getVertexNumber(v);
-		distance[Firstindex] = 0;
+		distance[Firstindex].weight = 0;
 
 		//정점 개수만큼
 		while (count != size) {
 			int closestIndex = getClosestVertexIndex();
 			visited[closestIndex] = true;
 
-			if (distance[closestIndex] == INF) {
+			if (distance[closestIndex].weight == INF) {
 				cout << "unavilable to make a spanning tree" << endl;
 				return;
 			}
 
-			cout << vertices[closestIndex] << " ";
+			if (!(closestIndex == distance[closestIndex].from)) {
+				cout << vertices[closestIndex] << "-" << vertices[distance[closestIndex].from] <<
+					" : " << distance[closestIndex].weight << endl;
+			}
 
 			//새로 추가된 정점에 대해 distance 갱신
 			for (int i = 0; i < size; ++i) {
 				if (visited[i] == false && matrix[closestIndex][i] != INF) {
-					if (matrix[closestIndex][i] < distance[i]) {
-						distance[i] = matrix[closestIndex][i];
+					if (matrix[closestIndex][i] < distance[i].weight) {
+						distance[i].weight = matrix[closestIndex][i];
 					}
 				}
 			}
@@ -368,8 +380,8 @@ public:
 		int index;
 		for (int i = 0; i < size; ++i) {
 			if (visited[i] == false) {
-				if (distance[i] < min) {
-					min = distance[i];
+				if (distance[i].weight < min) {
+					min = distance[i].weight;
 					index = i;
 				}
 			}
