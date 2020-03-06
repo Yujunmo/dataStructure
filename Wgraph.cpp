@@ -74,6 +74,7 @@ protected:
 	int size;
 	bool visited[MAX];
 	primVertex distance[MAX];
+	int DijDistance[MAX];
 public:
 	Wgraph() { reset(); }
 	void reset() {
@@ -94,12 +95,20 @@ public:
 		}
 	}
 
+	void distanceReset() {
+		for (int i = 0; i < size; ++i) {
+			DijDistance[i] = INF;
+		}
+	}
+
 	bool isFull() {
 		return size == MAX;
 	}
+
 	bool isEmpty() {
 		return size == 0;
 	}
+
 	int getVertexNumber(char v) {
 		for (int index = 0; index < size; ++index) {
 			if (vertices[index] == v) {
@@ -389,6 +398,49 @@ public:
 		return index;
 	}
 
+	int Dijkstra(char start, char end) {
+		visitedReset();
+		distanceReset();
+		int nextIndex;
+
+		int firstIndex = getVertexNumber(start);
+		int finalIndex = getVertexNumber(end);
+
+		DijDistance[firstIndex] = 0;
+
+		while (true) {
+
+			//이미 선택된 정점들의 집합에서 가장 가까운 정점찾기
+			int minDist = INF;
+			for (int i = 0; i < size; ++i) {
+				if (visited[i] == false) {
+					if (DijDistance[i] < minDist) {
+						minDist = DijDistance[i];
+						nextIndex = i;
+					}
+				}
+			}
+
+			//찾은 정점 방문처리
+			visited[nextIndex] = true;
+			//목표정점까지의 최단거리 구했으면 루프 벗어나기
+			if (visited[finalIndex] == true) {
+				break;
+			}
+
+			//새롭게 추가된 정점을 기준으로 distance배열 최소값으로 갱신하기
+			for (int i = 0; i < size; ++i) {
+				if (matrix[nextIndex][i] != INF && !visited[i]) {
+					if (DijDistance[i] > DijDistance[nextIndex] + matrix[nextIndex][i]) {
+						DijDistance[i] = DijDistance[nextIndex] + matrix[nextIndex][i];
+					}
+				}
+			}
+		}
+		//시작점에서 목표정점까지의 최단거리 반환
+		return DijDistance[finalIndex];
+	}
+
 
 };
 
@@ -409,5 +461,17 @@ int main() {
 
 	cout << "Prim" << endl;
 	graph.Prim('A');
+
+	cout << "Dijkstra "; puts("");
+	char ch;
+	cout << "press q to stop" << endl;
+	while ((ch = getchar()) != 'q') {
+		char start, end;
+		cout << "from : "; cin >> start;
+		cout << "to : "; cin >> end;
+		printf("[%c, %c] = %d\n", start, end, graph.Dijkstra(start, end));
+		cout << "press q to stop"; puts(""); puts("");
+	}
+
 	return 0;
 }
