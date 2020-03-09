@@ -61,6 +61,29 @@ private:
 		}
 	}
 
+	void makeCodeSub(node* n) {
+		if (n->isLeaf()) {
+			return;
+		}
+		else {
+			node*& left = n->getLeft();
+			node*& right = n->getRight();
+
+			if (left != nullptr) {
+				//부모 노드 가변코드 복사
+				left->code.assign(n->code.begin(), n->code.end());
+				left->code.push_back('1');
+				makeCodeSub(left);
+			}
+			if (right != nullptr) {
+				//부모 노드 가변코드 복사
+				right->code.assign(n->code.begin(), n->code.end());
+				right->code.push_back('0');
+				makeCodeSub(right);
+			}
+		}
+	}
+
 public:
 	Huffman() :root(nullptr) {}
 
@@ -95,29 +118,6 @@ public:
 	void makeCode() {
 		root->code.push_back('b');
 		makeCodeSub(root);
-	}
-
-	void makeCodeSub(node* n) {
-		if (n->isLeaf()) {
-			return;
-		}
-		else {
-			node*& left = n->getLeft();
-			node*& right = n->getRight();
-
-			if (left != nullptr) {
-				//부모 노드 가변코드 복사
-				left->code.assign(n->code.begin(), n->code.end());
-				left->code.push_back('1');
-				makeCodeSub(left);
-			}
-			if (right != nullptr) {
-				//부모 노드 가변코드 복사
-				right->code.assign(n->code.begin(), n->code.end());
-				right->code.push_back('0');
-				makeCodeSub(right);
-			}
-		}
 	}
 
 	void print() { printSub(root); }
